@@ -1,0 +1,71 @@
+//显示当前准确的中文时间，包括北京、东京、纽约、伦敦
+let currentDate = Date()
+var dateFormatter = DateFormatter()
+
+dateFormatter.dateFormat = "yyyy年M月dd日E a HH:mm"
+dateFormatter.locale = Locale(identifier:"zh_CN")
+let beijingTime = dateFormatter.string(from:currentDate)
+print("北京时间："+beijingTime)
+
+dateFormatter.timeZone = TimeZone(abbreviation:"UTC+9:00")
+let tokyoTime = dateFormatter.string(from:currentDate)
+print("东京时间："+tokyoTime)
+
+dateFormatter.timeZone = TimeZone(secondsFromGMT:-4*3600)
+let nyTime = dateFormatter.string(from:currentDate)
+print("纽约时间："+nyTime)
+
+dateFormatter.timeZone = TimeZone(secondsFromGMT:1*3600)
+let londonTime = dateFormatter.string(from:currentDate)
+print("伦敦时间："+londonTime)
+
+//处理字符串
+var str = "Swift is a powerful and intuitive programming language for iOS, OS X, tvOS, and watchOS."
+let index1 = str.index(str.startIndex,offsetBy:6)
+let index2 = str.index(str.startIndex,offsetBy:20)
+let str1 = str[index1...index2]
+print("返回字符串从第6个字符到第20个字符的子串:"+str1)
+let str2 = str.replacingOccurrences(of:"OS",with:"")
+print("删除其中所有的OS字符:"+str2)
+
+//将1、2题的时间和字符串存入一个字典中，并存入沙盒中的Document某文件中
+let dic = ["beijing":beijingTime,"tokyo":tokyoTime,"ny":nyTime,"london":londonTime,"String":str] as AnyObject
+let file = FileManager.default
+if var path = file.urls(for: .documentDirectory, in: .userDomainMask).first?.path{
+    print("默认路径defaultDoc是：",path)
+    path.append("/test.txt")        //在文件夹路径下增加一个test.txt
+    print("写入是否成功：",dic.write(toFile: path, atomically: true))        //在dict.txt中将数据写入
+}
+
+//从网上下载一张照片并保存到本地沙盒的Document的某文件中
+let image = try Data(contentsOf: URL(string: "https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo/bd_logo1_31bdc765.png")!) //通过指定的url获取图片，并转换为二进制数据 
+if var url = defaultDoc.urls(for: .documentDirectory, in: .userDomainMask).first
+{
+ 	url.appendPathComponent("image.png") 
+try image.write(to: url) //将转换后的二进制数据存储为png图片 
+}
+
+//从网上查找访问一个JSon接口文件，并采用JSONSerialization和字典对其进行简单解析
+enum MyError:Error {
+    case Zero
+    case NotURL
+}
+guard let postUrl = URL(string:"http://www.kuaidi100.com/query?type=yuantong&postid=11111111111" )else{
+    throw MyError.NotURL
+}
+let jsondata = try! Data(contentsOf: postUrl)
+let json = try!JSONSerialization.jsonObject(with: jsondata, options:.allowFragments )
+guard let dic = json as? [String:Any] else{
+    throw MyError.NotURL
+}
+print(dic)
+guard let messageInfo = dic["message"] as? [String:String] else {
+    throw MyError.NotURL
+}
+print(messageInfo)
+
+
+
+
+
+

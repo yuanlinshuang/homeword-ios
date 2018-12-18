@@ -1,0 +1,178 @@
+//给定一个Dictionary，Dictionary包含key值name和age，用map函数返回age字符串数组
+let dic=[["name":"lingo","age":"45"],["name":"bingo","age":"18"]]
+let str=dic.map({$0["name"]!})
+print(str)
+
+//给定一个String数组，用filter函数选出能被转成Int的字符串
+let arr1 = ["abc", "12a", "546856312","sbjks123", "123"]
+let arr2 = arr1.filter( { Int($0) != nil } )  //将字符串元素强转为Int类型，如果值为nil，则表示该字符串不能转换成Int
+print(arr2)
+
+//用reduce函数把String数组中元素连接成一个字符串，以逗号分隔
+let arr1 = ["abc", "12a", "546856312","sbjks123", "123"]
+var str = arr1.reduce("",{ $0 + "," + $1})
+str.remove(at:str.startIndex)		//移除第一个“，”
+print(str)
+
+//新建一个函数数组，函数数组里面保存了不同函数类型的函数，要求从数组里找出参数为一个整数，返回值为一个整数的所有函数；
+func func1(a: Int) -> Int { return a }  //函数类型为(Int) -> Int
+func func2(a: String) { 	}  //函数类型为(String) ->Void
+func func3() -> Int { return 2 }  //函数类型为() -> Int
+func func4(a: Int) {	}  //函数类型为(Int) -> Void
+func func5(a: Int) -> Int { return a + 1 }  //函数类型为(Int) -> Int
+let funArr: [Any] = [func1, func2, func3, func4, func5]
+let funName = ["func1","func2","func3","func4","func5"] 
+var i = -1
+for value in funArr {
+    i = i+1
+		if value is (Int) -> Int {
+        print(funName[i])  //输出类型为(Int) -> Int的函数名字
+    }
+}
+
+//扩展Int，增加sqrt方法，可以计算Int的Sqrt值并返回浮点数，进行验证
+extension Int{
+	func sqrt()->Double { return Double(self) }
+}
+var a:Int=1
+print(a.sqrt())
+
+//实现一个支持泛型的函数，该函数接受任意个变量并返回最大和最小值，分别传入整数值、浮点数值、字符串进行验证
+//法一：
+func maxAndmin<T: Comparable>(a: [T]) -> (T,T){
+	var min = a[0]
+	var max = a[0]
+	for i in a {
+    	if (i > max) { max=i } 
+		else if (i < min ){ min=i }
+    }
+	return (max,min)
+}
+let arrInt:[Int]=[1,-9,99,56,2,8]
+let arrDouble:[Double]=[1.0,12.6,2.3,6.6]
+let arrString:[String]=["jSGbj","sd","s","q"]
+print(maxAndmin(a:arrInt))
+print(maxAndmin(a:arrDouble))
+print(maxAndmin(a:arrString))
+//法二：
+func maxAndmin<T: Comparable>(a: T...) -> (T,T){
+	var min = a[0]
+	var max = a[0]
+	for i in a {
+    	if (i > max) { max=i } 
+		else if (i < min ){ min=i }
+    }
+	return (max,min)
+}
+print(maxAndmin(a:1,-9,99,56,2,8))
+print(maxAndmin(a:1.0,12.6,2.3,6.6))
+print(maxAndmin(a:"jSGbj","sd","s","q"))
+
+//类
+//实现Person类
+enum Gender:Int{
+	case male,female
+	static func >(lhs: Gender, rhs: Gender) -> Bool {
+        return lhs.rawValue < rhs.rawValue
+	}
+}
+enum Department {
+    case one, two, three
+}
+protocol SchoolProtocol {
+	var department: Department{ get set }
+	func lendBook()-> Int
+}
+class Person{
+	var firstName:String
+	var lastName:String
+	var age:Int
+	var gender:Gender
+	var fullName:String{ return firstName + lastName }
+	init(firstName:String,lastName:String,age:Int,gender:Gender){		//构造函数
+		self.firstName = firstName
+		self.lastName = lastName
+		self.age = age
+		self.gender = gender
+	}
+	convenience init(firstName:String){		//便利构造函数
+		self.init(firstName:firstName,lastName:"",age:18,gender:Gender.female)
+	}
+	func description() -> String{
+		return "name:\(fullName) age:\(age) gender:\(gender)"
+	}
+	func run(){
+		print("Person \(fullName) is running")
+	}
+}
+var person1=Person(firstName:"lingo")
+var person2=Person(firstName:"yuan",lastName:"linshuang",age:19,gender:Gender.male)
+var person3=Person(firstName:"lingo")
+print(person1.description())
+person1.run()
+print(person2.description())
+person2.run()
+class Teacher:Person,SchoolProtocol{		//Teacher类
+	var title:String
+	var department:Department
+	init (firstName:String,lastName:String,age:Int,gender:Gender,title:String,department:Department){
+		self.title = title
+		self.department = department
+		super.init(firstName:firstName,lastName:lastName,age:age,gender:gender)
+	}
+	override func description() -> String {
+		return super.description() + "title:\(title)" + "department:\(department)"
+	}
+	override func run(){
+		print("Teacher \(fullName) is running")
+	}
+	func lendBook() {
+		print("This is Teacher.")
+	}
+}
+class Student:Person,SchoolProtocol{		//Student类
+	var stuNo:String
+	var department:Department
+	init (firstName:String,lastName:String,age:Int,gender:Gender,stuNo:String,department:Department){
+		self.stuNo = stuNo
+		self.department = department
+		super.init(firstName:firstName,lastName:lastName,age:age,gender:gender)
+	}
+	override func description() -> String {
+		return super.description() + "stuNo:\(stuNo)" + "department:\(department)"
+	}
+	override func run(){
+		print("Student \(fullName) is running")
+	}
+	func lendBook() {
+		print("This is Student.")
+	}
+}
+var stu=Student(firstName:"yuan",lastName:"lin",age:19,gender:Gender.male,stuNo:"001",department:Department.one)
+var t2=Teacher(firstName:"yuan",lastName:"lin",age:19,gender:Gender.male,title:"IOS",department:Department.two)
+print(stu.description())
+stu.lendBook()
+print(t2.description())
+t2.lendBook()
+//对数组进行穷举，调用每个对象的run方法，同时调用满足协议SchoolProtocol对象的lendBook方法；
+var s1=Student(firstName:"yuan",lastName:"lin",age:19,gender:Gender.male,stuNo:"001",department:Department.one)
+var t1=Teacher(firstName:"yuan",lastName:"Bin",age:43,gender:Gender.male,title:"IOS",department:Department.two)
+var p1=Person(firstName:"lingo")
+var p2=Person(firstName:"bingo")
+var persons = [s1,t1,p1,p2]
+for a in persons {
+	a.run()
+	if let b = a as? Student{
+		b.lendBook()
+	}
+	else if let b = a as? Teacher {
+		b.lendBook()
+	}
+}
+
+
+
+
+
+
+
